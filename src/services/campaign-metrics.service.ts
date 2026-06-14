@@ -65,7 +65,7 @@ export const CampaignMetricsService = {
     }
 
     // "Sent" represents all messages that have passed or are passing through transmission channels
-    const sent = delivered + failed; 
+    const sent = delivered + failed + pending; 
 
     return {
       sent,

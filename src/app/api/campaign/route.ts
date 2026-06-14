@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import { CampaignService } from "@/services/campaign.service";
 import { CampaignLaunchService } from "@/services/campaign-launch.service";
 import { CampaignMetricsService } from "@/services/campaign-metrics.service";
@@ -55,29 +56,39 @@ export async function POST(req: NextRequest) {
         audiencePrompt: audiencePrompt.trim(),
       });
 
-      // Asynchronously trigger communication sending to the channel-service without blocking Next.js response
+      // Asynchronously trigger communication sending to the channel-service
       if (launchResult.success && launchResult.communications && launchResult.communications.length > 0) {
-        const channelServiceUrl = process.env.CHANNEL_SERVICE_URL || "http://localhost:3001";
-        
+        // Since Vercel kills background tasks and the mock channel service is not running,
+        // we simulate the external channel service delivery here by updating the records directly.
         (async () => {
-          console.log(`[Campaign Dispatcher] Launching async dispatch of ${launchResult.communications?.length} messages to ${channelServiceUrl}/send`);
-          for (const comm of launchResult.communications || []) {
-            try {
-              const res = await fetch(`${channelServiceUrl}/send`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  communicationId: comm.id,
-                  message: comm.message
-                }),
-              });
-              if (!res.ok) {
-                console.error(`[Campaign Dispatcher] Channel service responded with ${res.status} for ${comm.id}`);
-              }
-            } catch (err: any) {
-              console.error(`[Campaign Dispatcher] Failed to connect to channel-service for ${comm.id}:`, err.message);
-            }
+          console.log(`[Campaign Dispatcher] Simulating async dispatch of ${launchResult.communications.length} messages.`);
+          const commIds = launchResult.communications.map((c) => c.id);
+          
+          // Add a small delay to simulate network transfer, making the UI animation visible
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          
+          const failRate = 0.05; // 5% fail rate
+          const failedIds = commIds.filter(() => Math.random() < failRate);
+          const deliveredIds = commIds.filter((id) => !failedIds.includes(id));
+          
+          if (deliveredIds.length > 0) {
+            await prisma.communication.updateMany({
+              where: { id: { in: deliveredIds } },
+              data: { status: "DELIVERED" }
+            });
           }
+          if (failedIds.length > 0) {
+            await prisma.communication.updateMany({
+              where: { id: { in: failedIds } },
+              data: { status: "FAILED" }
+            });
+          }
+          
+          await prisma.campaign.update({
+            where: { id: launchResult.campaign.id },
+            data: { status: failedIds.length > 0 ? "PARTIAL_FAILURE" : "COMPLETED" }
+          });
+          console.log(`[Campaign Dispatcher] Simulation complete.`);
         })();
       }
 
