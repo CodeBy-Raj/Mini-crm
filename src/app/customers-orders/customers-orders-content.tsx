@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { CsvUploadSection } from "@/components/dashboard/csv-upload-section";
 import { DashboardContentTabs } from "@/components/dashboard/dashboard-content-tabs";
-import { CliConsoleSection } from "@/components/dashboard/cli-console-section";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { 
   Database, 
@@ -16,34 +15,23 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface CustomersOrdersContentProps {
-  initialStats: {
-    totalCustomers: number;
-    totalOrders: number;
-    totalRevenue: number;
-    calculatedSpend: number;
-  };
-  initialCustomers: any[];
-  initialOrders: any[];
-}
-
-export function CustomersOrdersContent({
-  initialStats,
-  initialCustomers,
-  initialOrders,
-}: CustomersOrdersContentProps) {
+export function CustomersOrdersContent() {
   const router = useRouter();
 
-  // Active sync lists
-  const [stats, setStats] = useState(initialStats);
-  const [customers, setCustomers] = useState(initialCustomers);
-  const [orders, setOrders] = useState(initialOrders);
+  // Active sync states
+  const [stats, setStats] = useState({
+    totalCustomers: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    calculatedSpend: 0,
+  });
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  // Real-time console logs
+  // Real-time logs state kept for tracking uploads
   const [logs, setLogs] = useState<string[]>([
-    "✓ CRM Foundation module activated.",
-    "✓ Database status: Connected.",
-    "- Ready for imports. Upload customer & order CSV sheets, or trigger automated seeder."
+    "✓ CRM Foundation module activated."
   ]);
 
   const addLogMessage = (message: string) => {
@@ -62,12 +50,21 @@ export function CustomersOrdersContent({
       }
     } catch (err) {
       console.warn("Transient sync state notice:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Triggering sync upon state logs changes
+  // Initial fetch on mount
   useEffect(() => {
     syncLatestDatabaseState();
+  }, []);
+
+  // Fetch when logs state changes (e.g., upload completes)
+  useEffect(() => {
+    if (logs.length > 1) {
+      syncLatestDatabaseState();
+    }
   }, [logs]);
 
   return (
@@ -87,69 +84,91 @@ export function CustomersOrdersContent({
         </div>
 
         <button 
-          onClick={syncLatestDatabaseState}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-805 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded-xl text-xs font-mono transition-colors cursor-pointer"
+          onClick={() => {
+            setLoading(true);
+            syncLatestDatabaseState();
+          }}
+          disabled={loading}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-805 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded-xl text-xs font-mono transition-colors cursor-pointer disabled:opacity-50"
         >
-          <RefreshCw size={11} />
-          <span>Refresh Lists</span>
+          <RefreshCw size={11} className={loading ? "animate-spin" : ""} />
+          <span>{loading ? "Syncing..." : "Refresh Lists"}</span>
         </button>
       </header>
 
-      {/* Database Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard 
-          title="Total Customers Indexed"
-          value={stats.totalCustomers}
-          icon={<Users size={16} />}
-          description="Total shopper records"
-          variant="blue"
-        />
+      {loading ? (
+        <>
+          {/* Skeleton Database Statistics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="bg-zinc-900/10 border border-zinc-800/40 rounded-2xl p-5 animate-pulse h-28 flex flex-col justify-between">
+                <div className="h-4 bg-zinc-800/50 rounded w-1/2" />
+                <div className="h-6 bg-zinc-850 rounded w-1/3" />
+                <div className="h-3 bg-zinc-800/30 rounded w-3/4" />
+              </div>
+            ))}
+          </div>
 
-        <StatsCard 
-          title="Invoice Orders Logged"
-          value={stats.totalOrders}
-          icon={<ShoppingBag size={16} />}
-          description="Distributed sales count"
-          variant="indigo"
-        />
+          {/* Skeleton Tables */}
+          <div className="bg-zinc-900/10 border border-zinc-800/30 rounded-2xl p-6 animate-pulse">
+            <div className="flex gap-4 border-b border-zinc-800/40 pb-4 mb-4">
+              <div className="h-8 bg-zinc-850 rounded w-24" />
+              <div className="h-8 bg-zinc-850 rounded w-24" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <div key={n} className="h-10 bg-zinc-900/20 rounded w-full" />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Database Statistics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatsCard 
+              title="Total Customers Indexed"
+              value={stats.totalCustomers}
+              icon={<Users size={16} />}
+              description="Total shopper records"
+              variant="blue"
+            />
 
-        <StatsCard 
-          title="Dynamic Invoice Revenue"
-          value={`$${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          icon={<DollarSign size={16} className="text-emerald-400" />}
-          description="Full invoices sum"
-          variant="emerald"
-        />
-      </div>
+            <StatsCard 
+              title="Invoice Orders Logged"
+              value={stats.totalOrders}
+              icon={<ShoppingBag size={16} />}
+              description="Distributed sales count"
+              variant="indigo"
+            />
 
-      {/* Main CSV upload / seeder block */}
-      <div className="grid grid-cols-1 gap-6">
-        <section className="w-full">
-          <CsvUploadSection onLogMessage={addLogMessage} />
-        </section>
-      </div>
+            <StatsCard 
+              title="Dynamic Invoice Revenue"
+              value={`$${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              icon={<DollarSign size={16} className="text-emerald-400" />}
+              description="Full invoices sum"
+              variant="emerald"
+            />
+          </div>
 
-      {/* Live Data Tables Inspector */}
-      <div className="grid grid-cols-1 gap-6">
-        <section className="w-full">
-          <DashboardContentTabs 
-            recentCustomers={customers} 
-            recentOrders={orders} 
-          />
-        </section>
-      </div>
+          {/* Main CSV upload / seeder block */}
+          <div className="grid grid-cols-1 gap-6">
+            <section className="w-full">
+              <CsvUploadSection onLogMessage={addLogMessage} />
+            </section>
+          </div>
 
-      {/* Live shell logging terminal */}
-      <div className="grid grid-cols-1 gap-6">
-        <section className="w-full">
-          <CliConsoleSection 
-            initialLogs={logs}
-            totalCustomers={stats.totalCustomers}
-            totalOrders={stats.totalOrders}
-            totalRevenue={stats.totalRevenue}
-          />
-        </section>
-      </div>
+          {/* Live Data Tables Inspector */}
+          <div className="grid grid-cols-1 gap-6">
+            <section className="w-full">
+              <DashboardContentTabs 
+                recentCustomers={customers} 
+                recentOrders={orders} 
+              />
+            </section>
+          </div>
+        </>
+      )}
     </div>
   );
 }
