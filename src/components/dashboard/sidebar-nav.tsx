@@ -152,12 +152,10 @@ export function SidebarNav() {
 
       {/* Brand Header */}
       <div className="flex items-center gap-3 pb-5 mb-5 border-b border-zinc-800/60 mt-2 shrink-0">
-        <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-850 rounded-xl flex items-center justify-center font-black italic text-sm text-white shadow-lg shadow-indigo-500/10">
-          XCRM
-        </div>
+        
         <div>
           <h2 className="text-sm font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-            Xeno Campaign CRM
+            Campaign CRM
           </h2>
           <p className="text-[10px] text-zinc-500 font-mono">React Core AI Environment</p>
         </div>

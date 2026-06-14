@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { CampaignBuilder } from "@/components/dashboard/campaign-builder";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { 
@@ -13,39 +13,10 @@ import {
   Percent,
   RefreshCw
 } from "lucide-react";
+import { useCrmData } from "@/components/crm-data-provider";
 
 export default function AnalyticsPage() {
-  const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState<any>(null);
-  const [stats, setStats] = useState<any>(null);
-
-  const fetchAnalyticsData = async () => {
-    try {
-      const [metricsRes, statsRes] = await Promise.all([
-        fetch("/api/campaign?type=metrics"),
-        fetch("/api/dashboard/stats")
-      ]);
-      const [metricsJson, statsJson] = await Promise.all([
-        metricsRes.json(),
-        statsRes.json()
-      ]);
-
-      if (metricsJson.success) {
-        setMetrics(metricsJson);
-      }
-      if (statsJson.success) {
-        setStats(statsJson.stats);
-      }
-    } catch (err) {
-      console.error("Failed to load analytics trends:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAnalyticsData();
-  }, []);
+  const { loading, stats, metrics, refreshData } = useCrmData();
 
   const totalRevenue = stats?.totalRevenue || 0;
   const sent = metrics?.global?.sent || 0;
@@ -84,11 +55,8 @@ export default function AnalyticsPage() {
 
         {!loading && (
           <button 
-            onClick={() => {
-              setLoading(true);
-              fetchAnalyticsData();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-805 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded-xl text-xs font-mono transition-colors cursor-pointer"
+            onClick={() => refreshData(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-805 border border-zinc-805 hover:border-zinc-700 text-zinc-300 hover:text-white rounded-xl text-xs font-mono transition-colors cursor-pointer select-none"
           >
             <RefreshCw size={11} />
             <span>Sync Stats</span>
@@ -102,15 +70,15 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
             {[1, 2, 3, 4].map((n) => (
               <div key={n} className="bg-zinc-900/10 border border-zinc-850 rounded-2xl p-5 h-24 flex flex-col justify-between">
-                <div className="h-4 bg-zinc-800 rounded w-1/2" />
-                <div className="h-6 bg-zinc-850 rounded w-1/3" />
+                <div className="h-4 bg-zinc-805 rounded w-1/2" />
+                <div className="h-6 bg-zinc-855 rounded w-1/3" />
               </div>
             ))}
           </div>
 
           {/* Skeleton Funnel */}
           <div className="bg-zinc-950/45 border border-zinc-900 p-5 rounded-2xl animate-pulse space-y-4">
-            <div className="h-4 bg-zinc-850 rounded w-28" />
+            <div className="h-4 bg-zinc-855 rounded w-28" />
             <div className="space-y-4 pt-2">
               {[1, 2, 3, 4].map((n) => (
                 <div key={n} className="space-y-2">
@@ -127,7 +95,7 @@ export default function AnalyticsPage() {
       ) : (
         <>
           {/* Campaign Outcomes Statistics Dashboard */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in font-mono">
             <StatsCard 
               title="Total Sent"
               value={sent}
@@ -156,15 +124,16 @@ export default function AnalyticsPage() {
             <StatsCard 
               title="Total Revenue"
               value={`$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              icon={<DollarSign size={15} className="text-emerald-400" />}
+              icon={<DollarSign size={15} className="text-emerald-405" />}
               description="Total commercial values"
               variant="emerald"
             />
+
           </div>
 
           {/* Multi-tier marketing funnel overview */}
           <div className="bg-zinc-950/45 border border-zinc-900 p-5 rounded-2xl">
-            <h3 className="text-[10px] font-mono font-bold text-zinc-550 uppercase tracking-widest mb-4">
+            <h3 className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-4">
               Campaign Funnel
             </h3>
 
@@ -184,7 +153,7 @@ export default function AnalyticsPage() {
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-[11px]">
                   <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-emerald-400" /> Delivered</span>
-                  <span className="text-zinc-300 font-bold">{delivered} orders ({deliveryRatePercent})</span>
+                  <span className="text-zinc-300 font-bold">{delivered} communications ({deliveryRatePercent})</span>
                 </div>
                 <div className="h-2 w-full bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500" style={{ width: sent > 0 ? `${(delivered / Math.max(sent, 1)) * 100}%` : "0%" }} />
@@ -197,7 +166,7 @@ export default function AnalyticsPage() {
                   <span className="flex items-center gap-1"><Eye size={11} className="text-amber-400" /> Opened</span>
                   <span className="text-zinc-300 font-bold">{openRatePercent} read</span>
                 </div>
-                <div className="h-2 w-full bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-zinc-900 border border-zinc-805 rounded-full overflow-hidden">
                   <div className="h-full bg-amber-500" style={{ width: sent > 0 ? "64.2%" : "0%" }} />
                 </div>
               </div>
@@ -208,7 +177,7 @@ export default function AnalyticsPage() {
                   <span className="flex items-center gap-1"><MousePointerClick size={11} className="text-pink-400" /> Clicked</span>
                   <span className="text-zinc-300 font-bold">{clickRatePercent} engage</span>
                 </div>
-                <div className="h-2 w-full bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-zinc-900 border border-zinc-805 rounded-full overflow-hidden">
                   <div className="h-full bg-[#f43f5e]" style={{ width: sent > 0 ? "28.5%" : "0%" }} />
                 </div>
               </div>
@@ -218,10 +187,9 @@ export default function AnalyticsPage() {
       )}
 
       {/* Core Campaign Analytics Logs & Auto Trial Tracing */}
-      <div className="bg-zinc-950/10 border border-zinc-900/80 p-1 rounded-2xl">
+      <div className="bg-zinc-950/10 border border-[#0d0d10] p-1 rounded-2xl">
         <CampaignBuilder viewMode="analytics" />
       </div>
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { 
   Users, 
@@ -15,45 +15,10 @@ import {
   RefreshCw
 } from "lucide-react";
 import Link from "next/link";
+import { useCrmData } from "@/components/crm-data-provider";
 
 export default function DashboardPage() {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<any>(null);
-  const [metrics, setMetrics] = useState<any>(null);
-  const [recentCustomers, setRecentCustomers] = useState<any[]>([]);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
-
-  const fetchDashboardData = async () => {
-    try {
-      const [statsRes, metricsRes] = await Promise.all([
-        fetch("/api/dashboard/stats"),
-        fetch("/api/campaign?type=metrics")
-      ]);
-
-      const [statsJson, metricsJson] = await Promise.all([
-        statsRes.json(),
-        metricsRes.json()
-      ]);
-
-      if (statsJson.success) {
-        setStats(statsJson.stats);
-        setRecentCustomers((statsJson.customers || []).slice(0, 5));
-        setRecentOrders((statsJson.orders || []).slice(0, 5));
-      }
-
-      if (metricsJson.success) {
-        setMetrics(metricsJson);
-      }
-    } catch (err) {
-      console.error("Dashboard client-side hydration error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const { loading, stats, metrics, recentCustomers, recentOrders, refreshData, lastUpdated } = useCrmData();
 
   const totalCustomers = stats?.totalCustomers || 0;
   const totalOrders = stats?.totalOrders || 0;
@@ -85,18 +50,26 @@ export default function DashboardPage() {
   const ordersTrend = totalOrders > 0 ? { value: `+${totalOrders} completed`, isPositive: true } : undefined;
   const revenueTrend = totalRevenue > 0 ? { value: `+$${totalRevenue.toFixed(2)} active`, isPositive: true } : undefined;
 
+  const displayCustomers = (recentCustomers || []).slice(0, 5);
+  const displayOrders = (recentOrders || []).slice(0, 5);
+
   return (
     <div className="space-y-6">
       {/* Brand & Dashboard Header */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-zinc-805/80 w-full">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-zinc-805/80 w-full animate-fade-in">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
               Dashboard
             </h1>
-            <span className="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-900/60 px-2 py-0.5 rounded-full font-mono font-medium">
+            <span className="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-900/60 px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider">
               Live Overview
             </span>
+            {lastUpdated && (
+              <span className="text-[9px] text-zinc-500 font-mono tracking-normal">
+                Synced: {lastUpdated}
+              </span>
+            )}
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">Overview of customers, orders, campaigns and revenue.</p>
         </div>
@@ -104,11 +77,8 @@ export default function DashboardPage() {
         <div className="flex gap-2">
           {!loading && (
             <button 
-              onClick={() => {
-                setLoading(true);
-                fetchDashboardData();
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-805 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded-xl text-xs font-mono transition-colors cursor-pointer"
+              onClick={() => refreshData(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-805 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white rounded-xl text-xs font-mono transition-colors cursor-pointer select-none"
             >
               <RefreshCw size={11} />
               <span>Reset Sync</span>
@@ -117,9 +87,9 @@ export default function DashboardPage() {
 
           <Link 
             href="/demo-flow"
-            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-mono font-bold transition-all shadow-md shadow-indigo-500/10"
+            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-mono font-bold transition-all shadow-md shadow-indigo-505/10 select-none animate-pulse"
           >
-            <Sparkles size={11} className="animate-pulse" />
+            <Sparkles size={11} />
             <span>Quick Start Guide</span>
           </Link>
         </div>
@@ -131,7 +101,7 @@ export default function DashboardPage() {
           {/* Answer Area Skeleton */}
           <div className="bg-zinc-900/10 border border-zinc-800/40 rounded-2xl p-6 h-36 animate-pulse flex flex-col justify-between">
             <div>
-              <div className="h-5 bg-zinc-850 rounded w-1/4 mb-3" />
+              <div className="h-5 bg-zinc-855 rounded w-1/4 mb-3" />
               <div className="h-4 bg-zinc-800 rounded w-1/2 mb-2" />
               <div className="h-3 bg-zinc-800/70 rounded w-3/4" />
             </div>
@@ -142,7 +112,7 @@ export default function DashboardPage() {
             {[1, 2, 3, 4].map((n) => (
               <div key={n} className="bg-zinc-900/10 border border-zinc-850 rounded-2xl p-5 h-24 flex flex-col justify-between">
                 <div className="h-4 bg-zinc-800 rounded w-1/2" />
-                <div className="h-6 bg-zinc-850 rounded w-1/3" />
+                <div className="h-6 bg-zinc-855 rounded w-1/3" />
               </div>
             ))}
           </div>
@@ -152,7 +122,7 @@ export default function DashboardPage() {
             {[1, 2, 3].map((n) => (
               <div key={n} className="bg-zinc-950/45 border border-zinc-900/90 rounded-2xl p-4 h-24 flex flex-col justify-between">
                 <div className="h-4 bg-zinc-800 rounded w-1/2" />
-                <div className="h-6 bg-zinc-850 rounded w-1/3" />
+                <div className="h-6 bg-zinc-855 rounded w-1/3" />
               </div>
             ))}
           </div>
@@ -180,15 +150,15 @@ export default function DashboardPage() {
             </div>
             
             <div>
-              <span className="text-[10px] bg-zinc-950 border border-zinc-800/80 px-2.5 py-1 rounded-lg text-indigo-400 font-mono font-bold uppercase tracking-widest inline-flex items-center gap-1.5 mb-3">
-                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-ping" />
+              <span className="text-[10px] bg-zinc-950 border border-zinc-800/80 px-2.5 py-1 rounded-lg text-indigo-400 font-mono font-bold uppercase tracking-widest inline-flex items-center gap-1.5 mb-3 animate-pulse">
+                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
                 Current Performance
               </span>
-              <h2 className="text-lg sm:text-xl font-light tracking-tight text-zinc-100 mb-2 leading-relaxed">
+              <h2 className="text-lg sm:text-xl font-light tracking-tight text-zinc-100 mb-2 leading-relaxed font-sans">
                 How is my CRM performing right now?
               </h2>
-              <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed max-w-4xl">
-                Currently, your CRM registers <span className="text-zinc-200 font-bold">{totalCustomers} shoppers</span> purchasing products across <span className="text-zinc-200 font-bold">{totalOrders} matched invoices</span>, capturing <span className="text-emerald-400 font-bold">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> in dynamic transacted revenue. Dynamic push delivery simulation reports an outstanding <span className="text-indigo-400 font-bold">{deliveryRate} delivery success rate</span> matching <span className="text-zinc-200 font-bold">{campaignsSentCount} dispatched campaigns</span>.
+              <p className="text-zinc-305 text-xs sm:text-sm leading-relaxed max-w-4xl font-sans">
+                Currently, your CRM registers <span className="text-zinc-200 font-bold">{totalCustomers} shoppers</span> purchasing products across <span className="text-zinc-200 font-bold">{totalOrders} matched invoices</span>, capturing <span className="text-emerald-405 font-bold">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> in dynamic transacted revenue. Dynamic push delivery simulation reports an outstanding <span className="text-indigo-450 font-bold">{deliveryRate} delivery success rate</span> matching <span className="text-zinc-200 font-bold">{campaignsSentCount} dispatched campaigns</span>.
               </p>
             </div>
           </div>
@@ -216,7 +186,7 @@ export default function DashboardPage() {
             <StatsCard 
               title="Gross Revenue"
               value={`$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              icon={<DollarSign size={16} className="text-neutral-405 text-emerald-400" />}
+              icon={<DollarSign size={16} className="text-emerald-400" />}
               description="Invoice balances matched"
               trend={revenueTrend}
               variant="emerald"
@@ -225,7 +195,7 @@ export default function DashboardPage() {
             <StatsCard 
               title="Active Segments"
               value={activeSegmentsCount}
-              icon={<Activity size={16} className="text-neutral-450" />}
+              icon={<Activity size={16} className="text-neutral-400" />}
               description="Prisma criteria filters"
             />
           </div>
@@ -234,35 +204,35 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-zinc-950/40 border border-zinc-900/90 rounded-2xl p-4 flex flex-col justify-between hover:border-zinc-800 transition-colors">
               <div>
-                <div className="flex justify-between items-center text-zinc-500 font-mono text-[10px] uppercase tracking-wider">
+                <div className="flex justify-between items-center text-zinc-500 font-mono text-[10px] uppercase tracking-wider font-bold">
                   <span>Campaigns Sent</span>
                   <Send size={14} className="text-blue-400" />
                 </div>
                 <p className="text-2xl font-bold text-zinc-100 font-mono mt-2">{campaignsSentCount}</p>
               </div>
-              <p className="text-[10px] text-zinc-500 font-mono mt-2 pt-2 border-t border-zinc-900/60">Dispatched customer notification runs</p>
+              <p className="text-[10px] text-zinc-500 font-mono mt-2 pt-2 border-t border-zinc-900/60 leading-relaxed font-semibold">Dispatched customer notification runs</p>
             </div>
 
             <div className="bg-zinc-950/40 border border-zinc-900/90 rounded-2xl p-4 flex flex-col justify-between hover:border-zinc-800 transition-colors">
               <div>
-                <div className="flex justify-between items-center text-zinc-500 font-mono text-[10px] uppercase tracking-wider">
+                <div className="flex justify-between items-center text-zinc-500 font-mono text-[10px] uppercase tracking-wider font-bold">
                   <span>Delivery Success</span>
                   <CheckCircle2 size={14} className="text-emerald-400 animate-pulse" />
                 </div>
                 <p className="text-2xl font-bold text-emerald-400 font-mono mt-2">{deliveryRate}</p>
               </div>
-              <p className="text-[10px] text-zinc-500 font-mono mt-2 pt-2 border-t border-zinc-900/60">Delivered vs failed bounces</p>
+              <p className="text-[10px] text-zinc-500 font-mono mt-2 pt-2 border-t border-zinc-900/60 leading-relaxed font-semibold">Delivered vs failed bounces</p>
             </div>
 
             <div className="bg-zinc-950/40 border border-zinc-900/90 rounded-2xl p-4 flex flex-col justify-between hover:border-zinc-800 transition-colors">
               <div>
-                <div className="flex justify-between items-center text-zinc-500 font-mono text-[10px] uppercase tracking-wider">
+                <div className="flex justify-between items-center text-zinc-500 font-mono text-[10px] uppercase tracking-wider font-bold">
                   <span>Conversion Rate</span>
                   <TrendingUp size={14} className="text-indigo-400" />
                 </div>
                 <p className="text-2xl font-bold text-indigo-400 font-mono mt-2">{conversionRate}</p>
               </div>
-              <p className="text-[10px] text-zinc-500 font-mono mt-2 pt-2 border-t border-zinc-900/60">Shopper order ratio indices</p>
+              <p className="text-[10px] text-zinc-500 font-mono mt-2 pt-2 border-t border-zinc-900/60 leading-relaxed font-semibold">Shopper order ratio indices</p>
             </div>
           </div>
 
@@ -270,37 +240,37 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Customers list */}
             <div className="bg-zinc-900/20 border border-zinc-850 p-5 rounded-2xl">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-4 font-mono">
                 <div>
-                  <h3 className="text-xs font-bold text-zinc-300 font-mono uppercase tracking-widest flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
                     <Users size={12} className="text-indigo-455" />
                     Recent Customers
                   </h3>
-                  <p className="text-[9px] text-zinc-500 font-mono">Latest records added inside PostgreSQL</p>
+                  <p className="text-[9px] text-zinc-500 mt-0.5">Latest records added inside PostgreSQL</p>
                 </div>
                 <Link 
                   href="/customers-orders"
-                  className="text-[10px] text-zinc-400 hover:text-white flex items-center gap-1.5 font-mono"
+                  className="text-[10px] text-zinc-400 hover:text-white flex items-center gap-1.5 font-semibold select-none"
                 >
                   <span>View All</span>
                   <ArrowRight size={11} />
                 </Link>
               </div>
 
-              {recentCustomers.length === 0 ? (
+              {displayCustomers.length === 0 ? (
                 <div className="text-center py-12 border border-dashed border-zinc-900 rounded-xl text-zinc-650 font-mono text-xs">
                   Zero records. Head to Customers & Orders or Quick Start Guide to populate database.
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 select-none">
-                  {recentCustomers.map((c) => (
+                  {displayCustomers.map((c) => (
                     <div key={c.id} className="bg-zinc-950/35 border border-zinc-900 p-3 rounded-xl flex items-center justify-between text-xs font-mono">
                       <div>
-                        <p className="text-zinc-200 font-semibold">{c.name}</p>
-                        <p className="text-[10px] text-zinc-505 text-zinc-450">{c.email}</p>
+                        <p className="text-zinc-200 font-bold">{c.name}</p>
+                        <p className="text-[10px] text-zinc-500">{c.email}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-zinc-300 font-semibold">${c.totalSpend?.toFixed(2) || "0.00"}</p>
+                        <p className="text-zinc-300 font-bold">${c.totalSpend?.toFixed(2) || "0.00"}</p>
                         <p className="text-[10px] text-zinc-500">cumulative spend</p>
                       </div>
                     </div>
@@ -310,35 +280,35 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Orders list */}
-            <div className="bg-zinc-900/20 border border-zinc-850 p-5 rounded-2xl">
+            <div className="bg-zinc-900/20 border border-zinc-850 p-5 rounded-2xl font-mono">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="text-xs font-bold text-zinc-300 font-mono uppercase tracking-widest flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-1.5">
                     <ShoppingBag size={12} className="text-emerald-455" />
                     Recent Orders
                   </h3>
-                  <p className="text-[9px] text-zinc-500 font-mono">Inbound sales transactions pipeline</p>
+                  <p className="text-[9px] text-zinc-500 mt-0.5">Inbound sales transactions pipeline</p>
                 </div>
                 <Link 
                   href="/customers-orders"
-                  className="text-[10px] text-zinc-400 hover:text-white flex items-center gap-1.5 font-mono"
+                  className="text-[10px] text-zinc-400 hover:text-white flex items-center gap-1.5 font-semibold select-none"
                 >
                   <span>View Orders</span>
                   <ArrowRight size={11} />
                 </Link>
               </div>
 
-              {recentOrders.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-zinc-900 rounded-xl text-zinc-655 font-mono text-xs">
+              {displayOrders.length === 0 ? (
+                <div className="text-center py-12 border border-dashed border-[#0d0d10] rounded-xl text-zinc-655 text-xs">
                   Zero order streams tracked. Use Demo Flow to seeds historical sets.
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 select-none">
-                  {recentOrders.map((o) => (
+                  {displayOrders.map((o) => (
                     <div key={o.id} className="bg-zinc-950/35 border border-zinc-900 p-3 rounded-xl flex items-center justify-between text-xs font-mono">
                       <div>
-                        <p className="text-zinc-200 font-semibold truncate max-w-[150px]">{o.id}</p>
-                        <p className="text-[10px] text-zinc-505 text-zinc-450">{o.email}</p>
+                        <p className="text-zinc-250 font-bold truncate max-w-[150px]">{o.id}</p>
+                        <p className="text-[10px] text-zinc-500">{o.email}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-emerald-450 font-bold text-emerald-400">${o.amount?.toFixed(2)}</p>
@@ -357,13 +327,13 @@ export default function DashboardPage() {
       <div className="bg-[#6366f1]/5 border border-indigo-950/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-xs">
         <div className="flex items-center gap-2.5">
           <Sparkles size={16} className="text-indigo-400 animate-pulse shrink-0" />
-          <p className="text-zinc-300 leading-normal">
-            <strong>Marketer workflow tip:</strong> Start with <span className="text-blue-400">Customers & Orders</span> to import or seed records, discover clusters in <span className="text-amber-400">Audience Discovery</span>, and generate messages on the <span className="text-indigo-400">Campaign Builder</span>.
+          <p className="text-zinc-300 leading-normal font-sans">
+            <strong>Marketer workflow tip:</strong> Start with <span className="text-blue-400 text-sans">Customers & Orders</span> to import or seed records, discover clusters in <span className="text-[#6366f1]/90">Audience segments</span>, and generate messages on the <span className="text-indigo-400">Campaign Builder</span>.
           </p>
         </div>
         <Link 
           href="/customers-orders"
-          className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-805 text-zinc-300 hover:text-white rounded-xl transition-colors shrink-0 font-bold"
+          className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-805 text-zinc-300 hover:text-white rounded-xl transition-colors shrink-0 font-bold select-none"
         >
           Begin Workflow 🚀
         </Link>
@@ -371,4 +341,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
