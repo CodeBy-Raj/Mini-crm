@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "AI CRM Audience & Campaign Manager",
@@ -27,6 +28,7 @@ export default function RootLayout({
             {children}
           </div>
         </main>
+        <Analytics />
       </body>
     </html>
   );
