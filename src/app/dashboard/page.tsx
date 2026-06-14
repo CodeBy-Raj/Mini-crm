@@ -87,7 +87,7 @@ export default async function DashboardPage() {
         
         <div>
           <span className="text-[10px] bg-zinc-950 border border-zinc-800/80 px-2.5 py-1 rounded-lg text-indigo-400 font-mono font-bold uppercase tracking-widest inline-flex items-center gap-1.5 mb-3">
-            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-ping" />
+
             Current Performance
           </span>
           <h2 className="text-lg sm:text-xl font-light tracking-tight text-zinc-100 mb-2 leading-relaxed">
