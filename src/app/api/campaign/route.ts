@@ -56,39 +56,44 @@ export async function POST(req: NextRequest) {
         audiencePrompt: audiencePrompt.trim(),
       });
 
-      // Asynchronously trigger communication sending to the channel-service
-      if (launchResult.success && launchResult.communications && launchResult.communications.length > 0) {
-        // Since Vercel kills background tasks and the mock channel service is not running,
-        // we simulate the external channel service delivery here by updating the records directly.
+      // Asynchronously simulate delivery since the external channel-service is not running on Vercel.
+      // Extract to a local const so TypeScript knows it is defined inside the async IIFE.
+      const communications = launchResult.communications ?? [];
+      if (launchResult.success && communications.length > 0) {
+        const campaignId = launchResult.campaign.id;
         (async () => {
-          console.log(`[Campaign Dispatcher] Simulating async dispatch of ${launchResult.communications.length} messages.`);
-          const commIds = launchResult.communications.map((c) => c.id);
-          
-          // Add a small delay to simulate network transfer, making the UI animation visible
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          
-          const failRate = 0.05; // 5% fail rate
-          const failedIds = commIds.filter(() => Math.random() < failRate);
-          const deliveredIds = commIds.filter((id) => !failedIds.includes(id));
-          
-          if (deliveredIds.length > 0) {
-            await prisma.communication.updateMany({
-              where: { id: { in: deliveredIds } },
-              data: { status: "DELIVERED" }
+          try {
+            console.log(`[Campaign Dispatcher] Simulating async dispatch of ${communications.length} messages.`);
+            const commIds = communications.map((c) => c.id);
+
+            // Small delay to simulate network transfer so the UI shows the PENDING → DELIVERED animation
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            const failRate = 0.05; // ~5% fail rate
+            const failedIds = commIds.filter(() => Math.random() < failRate);
+            const deliveredIds = commIds.filter((id) => !failedIds.includes(id));
+
+            if (deliveredIds.length > 0) {
+              await prisma.communication.updateMany({
+                where: { id: { in: deliveredIds } },
+                data: { status: "DELIVERED" },
+              });
+            }
+            if (failedIds.length > 0) {
+              await prisma.communication.updateMany({
+                where: { id: { in: failedIds } },
+                data: { status: "FAILED" },
+              });
+            }
+
+            await prisma.campaign.update({
+              where: { id: campaignId },
+              data: { status: failedIds.length > 0 ? "PARTIAL_FAILURE" : "COMPLETED" },
             });
+            console.log(`[Campaign Dispatcher] Simulation complete.`);
+          } catch (err) {
+            console.error("[Campaign Dispatcher] Simulation error:", err);
           }
-          if (failedIds.length > 0) {
-            await prisma.communication.updateMany({
-              where: { id: { in: failedIds } },
-              data: { status: "FAILED" }
-            });
-          }
-          
-          await prisma.campaign.update({
-            where: { id: launchResult.campaign.id },
-            data: { status: failedIds.length > 0 ? "PARTIAL_FAILURE" : "COMPLETED" }
-          });
-          console.log(`[Campaign Dispatcher] Simulation complete.`);
         })();
       }
 
