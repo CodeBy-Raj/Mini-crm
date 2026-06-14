@@ -44,9 +44,7 @@ export function CustomersOrdersContent() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
               Customers & Orders
             </h1>
-            <span className="text-[9px] bg-blue-950 text-blue-400 border border-blue-900/60 px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider">
-              Import Data
-            </span>
+            
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">Upload and manage customer and order data.</p>
         </div>

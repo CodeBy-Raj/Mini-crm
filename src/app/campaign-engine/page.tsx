@@ -14,10 +14,7 @@ export default function CampaignEnginePage() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
               Campaign Builder
             </h1>
-            <span className="text-[9px] bg-indigo-950 text-indigo-300 border border-indigo-900/60 px-2.5 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider animate-pulse flex items-center gap-1">
-              <Brain size={10} className="text-indigo-400" />
-              AI Powered
-            </span>
+           
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">Generate campaign messages from business goals.</p>
         </div>

@@ -62,9 +62,7 @@ export default function DashboardPage() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
               Dashboard
             </h1>
-            <span className="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-900/60 px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider">
-              Live Overview
-            </span>
+            
             {lastUpdated && (
               <span className="text-[9px] text-zinc-500 font-mono tracking-normal">
                 Synced: {lastUpdated}

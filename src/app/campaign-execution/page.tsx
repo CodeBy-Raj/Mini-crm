@@ -14,10 +14,7 @@ export default function CampaignExecutionPage() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
               Campaign Delivery
             </h1>
-            <span className="text-[9px] bg-rose-950 text-rose-300 border border-rose-900/60 px-2.5 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider flex items-center gap-1">
-              <PlayCircle size={10} className="text-rose-400" />
-              Campaign Delivery
-            </span>
+            
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">Launch campaigns and track message delivery.</p>
         </div>

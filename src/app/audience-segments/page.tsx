@@ -53,9 +53,7 @@ export default function AudienceSegmentsPage() {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
               Audience Discovery
             </h1>
-            <span className="text-[9px] bg-amber-950 text-amber-400 border border-amber-900/40 px-2 py-0.5 rounded-full font-mono font-medium">
-              Segment Shoppers
-            </span>
+            
           </div>
           <p className="text-xs text-zinc-500 font-mono mt-0.5">Create customer groups using simple English.</p>
         </div>

@@ -949,7 +949,7 @@ export function CampaignBuilder({ onLogMessage, viewMode = "engine" }: CampaignB
             <div className="flex justify-between items-center mb-3">
               <div>
                 <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest font-mono flex items-center gap-1.5 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                  
                   Active Campaigns ({liveCampaigns.length})
                 </h4>
                 <p className="text-[10px] text-zinc-500 font-mono">Live status of running campaigns.</p>

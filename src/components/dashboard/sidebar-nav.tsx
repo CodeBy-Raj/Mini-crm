@@ -155,9 +155,9 @@ export function SidebarNav() {
         
         <div>
           <h2 className="text-sm font-bold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-            Campaign CRM
+            AI-Native Mini CRM
           </h2>
-          <p className="text-[10px] text-zinc-500 font-mono">React Core AI Environment</p>
+          
         </div>
       </div>
 
