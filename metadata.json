@@ -1,0 +1,6 @@
+{
+  "name": "AI Audience & Campaign Manager",
+  "description": "An intelligent CRM audience segmenter and dynamic marketing campaign builder powered by Gemini models and PostgreSQL.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
