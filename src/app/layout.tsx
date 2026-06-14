@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { CrmDataProvider } from "@/components/crm-data-provider";
 
 export const metadata: Metadata = {
@@ -32,7 +30,6 @@ export default function RootLayout({
         ` }} />
       </head>
       <body className="antialiased min-h-screen bg-background text-foreground font-sans flex flex-col lg:flex-row overflow-x-hidden selection:bg-indigo-600/30 transition-colors duration-300">
-        <ThemeProvider>
           <CrmDataProvider>
             <SidebarNav />
             
@@ -47,7 +44,6 @@ export default function RootLayout({
                 <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-500 uppercase">
                   AI CRM Pipeline
                 </span>
-                <ThemeToggle />
               </div>
 
               <div className="flex-1 p-4 sm:p-6 md:p-8 flex flex-col gap-6 w-full max-w-6xl mx-auto z-10 pt-2 sm:pt-3">
@@ -55,7 +51,6 @@ export default function RootLayout({
               </div>
             </main>
           </CrmDataProvider>
-        </ThemeProvider>
       </body>
     </html>
   );
