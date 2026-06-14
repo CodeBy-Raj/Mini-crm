@@ -1,16 +1,7 @@
-# AI Audience & Campaign Manager (XCRM)
+# AI-Native Crm
 
-An enterprise-grade, high-performance customer relationship management, intelligent audience segmentation, and personalized marketing automation ecosystem powered by **Gemini Models** (via the modern `@google/genai` SDK), **PostgreSQL / SQLite** with **Prisma ORM**, and **Next.js**.
+Ai-native mini crm build using next.js for both frontend and backend.
 
----
-
-## 🎨 Dual-Theme Visual Experience
-XCRM is built with a bespoke interface that automatically adapts to the operator's environment:
-*   **Deep Space Theme**: A futuristic, high-contrast dark space skin suited for long-hour analytics control.
-*   **Pristine Day Theme**: A clean, soft off-white layout focusing on balanced visual rhythm, elegant typography pairings (<kbd>Space Grotesk</kbd> + <kbd>JetBrains Mono</kbd>), and maximum contrast black text for pixel-perfect readability.
-*   **Smooth Theme-Toggle Kinetic**: Implemented with hardware-accelerated animated switch dynamics powered by `motion/react` with persistent state sync in `localStorage`.
-
----
 
 ## 🚀 Key Architectural Features & Modules
 
@@ -74,7 +65,7 @@ npx prisma db seed
 ```
 
 ### 4. Direct App Execution
-XCRM is fitted with an orchestrated multi-process launcher starting both the core Express channel relays and Next.js development threads simultaneously:
+CRM is fitted with an orchestrated multi-process launcher starting both the core Express channel relays and Next.js development threads simultaneously:
 ```bash
 npm run dev
 ```
@@ -137,20 +128,14 @@ sequenceDiagram
 
 ```mermaid
 graph TD
-    %% Styling and Theme definitions
+    %% 
     classDef client fill:#1e1b4b,stroke:#4f46e5,stroke-width:2px,color:#fff;
     classDef server fill:#18181b,stroke:#27272a,stroke-width:2px,color:#d4d4d8;
     classDef service fill:#064e3b,stroke:#059669,stroke-width:2px,color:#fff;
     classDef database fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#fff;
     classDef external fill:#701a75,stroke:#c026d3,stroke-width:2px,color:#fff;
 
-    subgraph Client_Tier [Client Tier - Dual-Theme Presentation Layer]
-        UI([React Client & Lucide Icons])
-        Context[CrmDataProvider Context Sync]
-        ThemeSwitch[Hardware-Accelerated Theme Toggle]
-        UI --> Context
-        ThemeSwitch --> UI
-    end
+
     class UI,Context,ThemeSwitch client;
 
     subgraph Server_Tier [Server Tier - API Gateway & Orchestration]
@@ -170,7 +155,7 @@ graph TD
 
     subgraph Storage [Data Tier]
         PrismaORM[Prisma ORM Client Proxy]
-        Postgres[(PostgreSQL Database Schema / SQLite)]
+        Postgres[(PostgreSQL Database Schema )]
         PrismaORM --> Postgres
     end
     class PrismaORM,Postgres database;
@@ -181,7 +166,7 @@ graph TD
     class GeminiSDK external;
 
     %% Connectivity flows
-    Context -->|JSON REST Requests| NextServer
+    
     NextServer --> CustServ
     NextServer --> SegServ
     NextServer --> CampServ
