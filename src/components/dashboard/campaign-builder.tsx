@@ -168,6 +168,21 @@ export function CampaignBuilder({ onLogMessage, viewMode = "engine" }: CampaignB
     }, 1500);
   };
 
+  const triggerDeliverySimulation = async () => {
+    try {
+      console.log("[CampaignBuilder] Triggering delivery simulation for stuck PENDING campaigns...");
+      const res = await fetch("/api/campaign/deliver", { method: "POST" });
+      const data = await res.json();
+      if (data.success && data.processed > 0) {
+        console.log(`[CampaignBuilder] Simulation complete: ${data.delivered} delivered, ${data.failed} failed.`);
+        // Re-fetch metrics now that comms are updated
+        await fetchLiveMetrics();
+      }
+    } catch (e) {
+      console.warn("[CampaignBuilder] Delivery simulation error:", e);
+    }
+  };
+
   const fetchLiveMetrics = async () => {
     try {
       const res = await fetch("/api/campaign?type=metrics");
@@ -188,7 +203,7 @@ export function CampaignBuilder({ onLogMessage, viewMode = "engine" }: CampaignB
           const failed = (data.campaigns || []).reduce((sum: number, c: any) => sum + (c.failed !== undefined ? c.failed : (c.metrics?.failed || 0)), 0);
           const pending = (data.campaigns || []).reduce((sum: number, c: any) => sum + (c.pending !== undefined ? c.pending : (c.metrics?.pending || 0)), 0);
           setGlobalStats({
-            sent: delivered + failed,
+            sent: delivered + failed + pending,
             delivered,
             failed,
             pending,
@@ -227,8 +242,15 @@ export function CampaignBuilder({ onLogMessage, viewMode = "engine" }: CampaignB
   };
 
   useEffect(() => {
-    fetchDrafts();
-    fetchLiveMetrics();
+    // On mount: fetch drafts and metrics, then trigger delivery for any stuck PENDING campaigns
+    const init = async () => {
+      await fetchDrafts();
+      await fetchLiveMetrics();
+      // Auto-process any communications that got stuck in PENDING state
+      // (this handles campaigns launched before the delivery simulation was added)
+      await triggerDeliverySimulation();
+    };
+    init();
   }, []);
 
   useEffect(() => {
