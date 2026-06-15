@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   MapPin,
-  Compass
+  Compass,
+  Terminal
 } from "lucide-react";
 
 export function SidebarNav() {
@@ -79,6 +80,12 @@ export function SidebarNav() {
       href: "/dashboard",
       icon: <LayoutDashboard size={16} />,
       desc: "Overview of customers, orders, campaigns and revenue."
+    },
+    {
+      name: "API Documentation",
+      href: "/api-docs",
+      icon: <Terminal size={16} />,
+      desc: "Interactive API and JSON schema console."
     },
     {
       name: "Quick Start Guide",

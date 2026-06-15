@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
           <Link 
             href="/demo-flow"
-            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-mono font-bold transition-all shadow-md shadow-indigo-505/10 select-none animate-pulse"
+            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-blue-700 text-white rounded-xl text-xs font-mono font-bold transition-all shadow-md shadow-indigo-600/10 select-none"
           >
             <Sparkles size={11} />
             <span>Quick Start Guide</span>
@@ -148,10 +148,7 @@ export default function DashboardPage() {
             </div>
             
             <div>
-              <span className="text-[10px] bg-zinc-950 border border-zinc-800/80 px-2.5 py-1 rounded-lg text-indigo-400 font-mono font-bold uppercase tracking-widest inline-flex items-center gap-1.5 mb-3 animate-pulse">
-                <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
-                Current Performance
-              </span>
+              
               <h2 className="text-lg sm:text-xl font-light tracking-tight text-zinc-100 mb-2 leading-relaxed font-sans">
                 How is my CRM performing right now?
               </h2>
