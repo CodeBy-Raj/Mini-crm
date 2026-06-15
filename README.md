@@ -4,7 +4,6 @@ A simple AI-powered CRM built using Next.js, Prisma, and Gemini AI.
 
 The application helps marketers manage customer data, create audience segments, generate campaigns using AI, launch campaigns, and track performance from a single dashboard.
 
----
 
 # Features
 
@@ -55,10 +54,74 @@ The application helps marketers manage customer data, create audience segments, 
 - CSV Processing: PapaParse
 - Deployment: Vercel
 
----
 
 
----
+## Database Schema
+
+```mermaid
+erDiagram
+
+    Customer ||--o{ Order : places
+    Customer ||--o{ CampaignCommunication : receives
+
+    Campaign ||--o{ CampaignCommunication : sends
+    Campaign ||--o{ CampaignMetric : tracks
+    Campaign ||--o{ AIRecommendation : generates
+
+    Customer {
+        string id PK
+        string name
+        string email
+        string city
+        float totalSpend
+        date lastPurchaseDate
+        datetime createdAt
+    }
+
+    Order {
+        string id PK
+        string customerId FK
+        float amount
+        datetime orderDate
+    }
+
+    Campaign {
+        string id PK
+        string name
+        string goal
+        string audienceDescription
+        string channel
+        string message
+        string status
+        datetime createdAt
+    }
+
+    CampaignCommunication {
+        string id PK
+        string campaignId FK
+        string customerId FK
+        string status
+        datetime sentAt
+    }
+
+    CampaignMetric {
+        string id PK
+        string campaignId FK
+        int dispatched
+        int delivered
+        int failed
+        int opened
+        int clicked
+    }
+
+    AIRecommendation {
+        string id PK
+        string campaignId FK
+        string recommendation
+        datetime createdAt
+    }
+```
+
 
 # System Flow
 
@@ -226,7 +289,7 @@ sequenceDiagram
     API-->>UI: Show analytics
 ```
 
----
+
 
 # API Endpoints
 
