@@ -47,7 +47,24 @@ const endpoints2: Endpoint[] = [
     category: "Dashboard",
     summary: "Retrieve CRM overview metrics",
     description: "Fetches aggregated performance KPIs including total customer count, purchase transactions, raw sales revenues, and dynamic lifetime spend calculations. Also returns lists of recent customers and transactions to display in live CRM modules.",
-    parameters: []
+    parameters: [
+      {
+        name: "limit",
+        in: "query",
+        required: false,
+        type: "integer",
+        description: "The maximum number of recent customer and order items to return inside the response. Defaults to 50.",
+        default: "50"
+      },
+      {
+        name: "offset",
+        in: "query",
+        required: false,
+        type: "integer",
+        description: "Number of records to skip for pagination. Defaults to 0.",
+        default: "0"
+      }
+    ]
   },
   {
     id: "segmentation-build",
@@ -354,16 +371,8 @@ export default function ApiDocsPage() {
       }
 
       const res = await fetch(url, options);
+      const resData = await res.json();
       const endTime = performance.now();
-      const rawText = await res.text();
-
-      let resData: any;
-      try {
-        resData = JSON.parse(rawText);
-      } catch {
-        // Server returned non-JSON (e.g. HTML error page on 500)
-        resData = { error: `Server returned non-JSON response (HTTP ${res.status})`, raw: rawText.slice(0, 300) };
-      }
 
       setResponseStatus2(res.status);
       setResponseTime2(Math.round(endTime - startTime));

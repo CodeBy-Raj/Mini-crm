@@ -9,7 +9,7 @@ export interface OrderInput {
 
 export const OrderService = {
   async createOrder(data: OrderInput) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
       const orderDate = data.createdAt ? new Date(data.createdAt) : new Date();
 
       const order = await tx.order.create({
@@ -52,12 +52,16 @@ export const OrderService = {
     });
   },
 
-  async getAllOrders() {
+  async getAllOrders(options?: { limit?: number; offset?: number }) {
+    const take = options?.limit;
+    const skip = options?.offset;
     return prisma.order.findMany({
       include: {
         customer: true,
       },
       orderBy: { createdAt: "desc" },
+      ...(take !== undefined ? { take } : {}),
+      ...(skip !== undefined ? { skip } : {}),
     });
   },
 
@@ -145,7 +149,7 @@ export const OrderService = {
         const finalDate = isNaN(dateParsed.getTime()) ? new Date() : dateParsed;
 
         // Create transaction to verify or upsert order safely
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           let orderExists = false;
 
           if (orderId) {
@@ -227,7 +231,7 @@ export const OrderService = {
   },
 
   async deleteOrder(id: string) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
       const order = await tx.order.findUnique({
         where: { id },
       });
@@ -244,10 +248,10 @@ export const OrderService = {
         });
 
         if (customer) {
-          const newTotalSpend = customer.orders.reduce((sum, o) => sum + o.amount, 0);
+          const newTotalSpend = customer.orders.reduce((sum: any, o: any) => sum + o.amount, 0);
           const hasOrders = customer.orders.length > 0;
           const newLastOrderDate = hasOrders
-            ? new Date(Math.max(...customer.orders.map((o) => new Date(o.createdAt).getTime())))
+            ? new Date(Math.max(...customer.orders.map((o: any) => new Date(o.createdAt).getTime())))
             : null;
 
           await tx.customer.update({

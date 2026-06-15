@@ -61,9 +61,13 @@ export const CustomerService = {
     });
   },
 
-  async getAllCustomers() {
+  async getAllCustomers(options?: { limit?: number; offset?: number }) {
+    const take = options?.limit;
+    const skip = options?.offset;
     return prisma.customer.findMany({
       orderBy: { createdAt: "desc" },
+      ...(take !== undefined ? { take } : {}),
+      ...(skip !== undefined ? { skip } : {}),
     });
   },
 

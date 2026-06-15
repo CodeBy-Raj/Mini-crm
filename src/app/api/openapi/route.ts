@@ -25,6 +25,22 @@ export async function GET() {
         get: {
           summary: "Retrieve CRM statistics and data snapshots",
           description: "Fetches aggregated KPIs for the dashboard, including total customers, total orders, total revenue, calculation of client lifetime spend, and slices of recent customers and orders.",
+          parameters: [
+            {
+              name: "limit",
+              in: "query",
+              required: false,
+              schema: { type: "integer" },
+              description: "The maximum number of recent customer and order records to fetch. Defaults to 50."
+            },
+            {
+              name: "offset",
+              in: "query",
+              required: false,
+              schema: { type: "integer" },
+              description: "Number of records to skip for pagination. Defaults to 0."
+            }
+          ],
           responses: {
             "200": {
               description: "Returns general stats, customer logs, and recent order transactions.",
