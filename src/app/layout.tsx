@@ -14,19 +14,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `
-          try {
-            const saved = localStorage.getItem('theme');
-            if (saved === 'light') {
-              document.documentElement.classList.add('light');
-              document.documentElement.classList.remove('dark');
-            } else {
+          (function() {
+            try {
+              var saved = localStorage.getItem('theme');
+              var root = document.documentElement;
+              if (saved === 'light') {
+                root.classList.remove('dark');
+              } else {
+                // Default: always dark (no saved preference or saved === 'dark')
+                root.classList.add('dark');
+              }
+            } catch (e) {
+              // localStorage blocked (private mode etc.) — fall back to dark
               document.documentElement.classList.add('dark');
-              document.documentElement.classList.remove('light');
             }
-          } catch (_) {}
+          })();
         ` }} />
       </head>
       <body className="antialiased min-h-screen bg-background text-foreground font-sans flex flex-col lg:flex-row overflow-x-hidden selection:bg-indigo-600/30 transition-colors duration-300">
