@@ -225,10 +225,8 @@ export function SidebarNav() {
       {/* Mobile Top Navbar Header spacer */}
       <header className="lg:hidden h-14 bg-[#09090b] border-b border-zinc-800/80 flex items-center justify-between px-4 sticky top-0 z-40 w-full">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center font-bold italic text-xs text-white">
-            XC
-          </div>
-          <span className="text-xs font-mono font-bold text-zinc-100">Xeno Campaign CRM</span>
+         
+          <span className="text-xs font-mono font-bold text-zinc-100">AI-Native Mini CRM</span>
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}

@@ -99,7 +99,7 @@ export const CampaignMetricsService = {
       },
     });
 
-    return campaigns.map((c) => {
+    return campaigns.map((c:any) => {
       const total = c.communications.length;
       let delivered = 0;
       let failed = 0;
@@ -167,7 +167,7 @@ export const CampaignMetricsService = {
       },
     });
 
-    return communications.map((comm) => ({
+    return communications.map((comm:any) => ({
       id: comm.id,
       customerId: comm.customerId,
       customerName: comm.customer?.name || "Unknown Customer",

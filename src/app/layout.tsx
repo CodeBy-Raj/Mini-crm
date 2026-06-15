@@ -42,7 +42,7 @@ export default function RootLayout({
               {/* Elegant Global Top Header */}
               <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 flex justify-between items-center z-20">
                 <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-500 uppercase">
-                  AI CRM Pipeline
+                  AI CRM
                 </span>
               </div>
 

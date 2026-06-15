@@ -58,7 +58,7 @@ export function DashboardShell({
             }`}
           >
             <FileText size={13} className={viewMode === "campaign" ? "text-indigo-400" : ""} />
-            AI Campaign Builder (Phase 5)
+            AI Campaign Builder
           </button>
 
           <button
@@ -70,7 +70,7 @@ export function DashboardShell({
             }`}
           >
             <Sparkles size={13} className={viewMode === "builder" ? "text-amber-400" : ""} />
-            AI Audience Segmenter (Phase 4)
+            AI Audience Segmenter
           </button>
           
           <button

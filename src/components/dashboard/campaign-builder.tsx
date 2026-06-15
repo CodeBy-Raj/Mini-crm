@@ -658,7 +658,7 @@ export function CampaignBuilder({ onLogMessage, viewMode = "engine" }: CampaignB
             <div className="flex items-center gap-2 pb-1">
               <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
               <div>
-                <p className="font-bold uppercase tracking-wider text-emerald-400">Campaign Launched Successfully (Phase 6)</p>
+                <p className="font-bold uppercase tracking-wider text-emerald-400">Campaign Launched Successfully</p>
                 <p className="text-zinc-500 mt-0.5 leading-normal">Atomically generated live communications mapping in PostgreSQL using transactions.</p>
               </div>
             </div>
@@ -914,7 +914,7 @@ export function CampaignBuilder({ onLogMessage, viewMode = "engine" }: CampaignB
         </div>
         )}
 
-        {/* Real-time Execution Dashboard (Phase 8 HUD) */}
+        {/* Real-time Execution Dashboard (Phase 8 ) */}
         {(viewMode === "execution" || viewMode === "analytics") && (
           <>
             <div className="bg-zinc-900/30 border border-zinc-800/85 rounded-2xl p-5 hover:border-zinc-700/60 transition-all duration-300">

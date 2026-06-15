@@ -102,9 +102,6 @@ export function WalkthroughGuide() {
             Interactive Walkthrough Roadmap & DEMO Guide
           </h3>
         </div>
-        <span className="text-[10px] bg-blue-950 font-bold border border-blue-900/60 text-blue-400 px-2 py-0.5 rounded-full font-mono">
-          PHASE 10 END-TO-END DEMO
-        </span>
       </div>
 
       {/* Progress Circles Bar */}
