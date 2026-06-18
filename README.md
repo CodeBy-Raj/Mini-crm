@@ -1,6 +1,4 @@
-# AI-Native Mini CRM
-
-A simple AI-powered CRM built using Next.js, Prisma, and Gemini AI.
+# Engage CRM
 
 The application helps marketers manage customer data, create audience segments, generate campaigns using AI, launch campaigns, and track performance from a single dashboard.
 
