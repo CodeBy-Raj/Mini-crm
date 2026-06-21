@@ -2,6 +2,75 @@
 
 The application helps marketers manage customer data, create audience segments, generate campaigns using AI, launch campaigns, and track performance from a single dashboard.
 
+# Engineering Decisions
+1. Next.js Instead of Separate Frontend + Backend
+
+Decision:
+Used Next.js with API Routes instead of maintaining separate React and Express repositories.
+
+Why:
+
+Faster development within the assignment timeline.
+Single deployment on Vercel.
+Easier API integration with frontend components.
+Reduced project complexity.
+
+Tradeoff:
+Less flexibility than a dedicated microservice architecture, but significantly faster iteration for an MVP.
+
+2. PostgreSQL + Prisma Instead of MongoDB
+
+Decision:
+Used PostgreSQL with Prisma ORM.
+
+Why:
+
+CRM data is highly relational.
+Customers, Orders, Campaigns, Deliveries, and Communication Logs have clear relationships.
+Easier analytics and reporting queries.
+
+Tradeoff:
+Schema changes require migrations, but data consistency and query capabilities are much stronger.
+
+3. AI as a Decision Layer, Not Just a Chatbot
+
+Decision:
+Used AI for audience discovery, campaign strategy generation, and optimization recommendations.
+
+Why:
+Many CRM projects simply add a chatbot. The goal was to make AI participate in business decisions by analyzing customer and campaign data.
+
+Tradeoff:
+Requires structured prompts and carefully prepared context before calling the model.
+
+4. Campaign Simulation Instead of Real Messaging Providers
+
+Decision:
+Simulated message delivery instead of integrating Twilio, WhatsApp Business API, or SendGrid.
+
+Why:
+
+Keeps focus on campaign intelligence and workflow design.
+Avoids dependency on external services during evaluation.
+Makes the project easier to test and demo.
+
+Tradeoff:
+Does not send real messages, but supports complete end-to-end campaign execution.
+
+5. Polling-Based Analytics Updates
+
+Decision:
+Used periodic data refreshes instead of WebSockets.
+
+Why:
+
+Simpler implementation.
+Sufficient for monitoring campaign performance during demos.
+
+Tradeoff:
+Analytics are not updated instantly, but system complexity remains lower.
+
+
 
 # Features
 
@@ -303,6 +372,100 @@ sequenceDiagram
 | GET | `/api/campaign?type=metrics` | Get campaign analytics |
 
 ---
+
+
+## Challenges Faced
+Designing a Real CRM Data Model
+Initially it was tempting to build isolated features independently.
+The challenge was designing relationships between:
+
+Customers
+Orders
+Campaigns
+Deliveries
+Communication Logs
+
+A proper relational model was required before building AI workflows and analytics.
+Making AI Recommendations Useful
+Generating marketing text was easy.
+Generating recommendations that actually use customer behavior and campaign performance data was much harder.
+The solution was creating structured prompts that included:
+
+Customer statistics
+Audience segment details
+Campaign history
+Performance metrics
+
+instead of sending raw database records.
+
+---
+
+## Tradeoffs
+
+| Decision              | Benefit                           | Tradeoff                              |
+| --------------------- | --------------------------------- | ------------------------------------- |
+| Next.js Monolith      | Faster development                | Less scalable than separated services |
+| Simulated Messaging   | No external dependency            | No real message delivery              |
+| Gemini API            | Fast and cost-effective iteration | Fewer enterprise features             |
+| Polling Updates       | Simpler implementation            | Not real-time                         |
+| Single Tenant Design  | Easier development                | Not production multi-tenant ready     |
+| Basic Campaign Engine | Easy to demonstrate               | No advanced scheduling or automation  |
+
+---
+
+## Future Enhancements
+
+### Authentication & RBAC
+
+* User authentication
+* Organization workspaces
+* Role-based access control
+
+---
+
+### Real Communication Channels
+
+* Twilio SMS integration
+* WhatsApp Business API integration
+* Email providers (SendGrid, Resend)
+
+---
+
+### Advanced AI Campaign Optimization
+
+* Predictive campaign success scoring
+* Automated budget allocation
+* AI-generated A/B testing suggestions
+* Performance-based campaign refinement
+
+---
+
+### Real-Time Infrastructure
+
+* WebSocket-based updates
+* Live delivery tracking
+* Real-time analytics dashboard
+
+---
+
+### Customer Intelligence Layer
+
+* Churn prediction
+* Customer lifetime value prediction
+* Customer health scoring
+* Purchase propensity analysis
+
+---
+
+### Multi-Tenant SaaS Architecture
+
+* Organization-level data isolation
+* Team collaboration
+* Workspace management
+* Subscription and billing support
+
+---
+
 
 # Project Structure
 
